@@ -14,7 +14,7 @@ const swaggerDocument = {
     "title": "Kolective Management API",
     "description": "API documentation for managing KOL data, token trading, and statistics"
   },
-  "host": "kolective-ethsf-backend.vercel.app",
+  "host": "kolective-api.vercel.app",
   // "host": "localhost:5000",
   "basePath": "/api",
   "schemes": ["https"],
