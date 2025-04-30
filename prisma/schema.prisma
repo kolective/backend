@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RiskRecommendation {
+  CONSERVATIVE
+  BALANCED
+  AGGRESSIVE
+}
+
+enum SignalType {
+  BUY
+  SELL
+}
+
+enum RiskLevel {
+  CONSERVATIVE
+  BALANCED
+  AGGRESSIVE
+}
+
+model KOL {
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  username           String              @unique
+  avatar             String
+  followersTwitter   Int
+  followersKOL       Int
+  riskRecommendation RiskRecommendation?
+  tweets             Tweet[]
+  avgProfitD         Int
+  rankFollowersKOL   Int?
+  rankAvgProfitD     Int?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  KOLFollowed        KOLFollowed[]
+
+  @@index([username])
+  @@index([followersTwitter])
+  @@index([riskRecommendation])
+}
+
+model Tweet {
+  id        Int        @id @default(autoincrement())
+  tokenId   Int
+  content   String
+  signal    SignalType
+  risk      RiskLevel
+  timestamp BigInt
+  expired   Boolean    @default(false)
+  valid     Boolean    @default(true)
+  kolId     Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  kol   KOL   @relation(fields: [kolId], references: [id], onDelete: Cascade)
+  token Token @relation(fields: [tokenId], references: [id])
+
+  @@index([tokenId])
+}
+
+model Token {
+  id             Int      @id @default(autoincrement())
+  addressToken   String   @unique
+  symbol         String
+  name           String
+  decimals       Int
+  chain          String
+  logo           String
+  priceChange24H Float
+  tags           String[]
+
+  tweets Tweet[]
+}
+
+model KOLFollowed {
+  id          Int      @id @default(autoincrement())
+  kolId       Int
+  userAddress String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  kol KOL @relation(fields: [kolId], references: [id])
+
+  @@unique([kolId, userAddress]) 
+  @@index([userAddress])
+}
